@@ -36,10 +36,7 @@ $ALLinfo =  [
     $Cinfo
 ];
 
-echo "<pre>";
-print_r($ALLinfo);
-echo "</pre>";
-
+ADDinfo($ALLinfo);
 
 
 
