@@ -37,6 +37,9 @@ $ALLinfo =  [
 ];
 
 ADDinfo($ALLinfo);
+header("Location: index.php");
+exit;
+
 
 
 
