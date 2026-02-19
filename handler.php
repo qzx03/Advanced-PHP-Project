@@ -1,46 +1,61 @@
 <?php
+session_start(); // START SESSION FOR ERROR HANDLING
+
 require "function.php";
-$PLname = $_POST['PLname'];
-$PFname = $_POST['PFname'];
-$Bdate = $_POST['Bdate'];
-$Gender = $_POST['Gender'];
-$tel = $_POST['PHnum'];
-$Cdate = $_POST['Cdate'];
-$Creason = $_POST['Creason'];
-$temp = floatval($_POST['temp']);
+
+// Sanitize and trim inputs
+$PLname = trim($_POST['PLname'] ?? '');
+$PFname = trim($_POST['PFname'] ?? '');
+$Bdate = $_POST['Bdate'] ?? '';
+$Gender = $_POST['Gender'] ?? '';
+$tel = trim($_POST['PHnum'] ?? '');
+$Cdate = $_POST['Cdate'] ?? '';
+$Creason = trim($_POST['Creason'] ?? '');
+$temp = isset($_POST['temp']) ? floatval($_POST['temp']) : 0;
 $pressure = $_POST['pressure'] ?? [];
-$systolic = intval($pressure[0] ?? 0);
-$diastolic = intval($pressure[1] ?? 0);
-$weight = floatval($_POST['weight']);
-$height = floatval($_POST['height']);
+$systolic = isset($pressure[0]) ? intval($pressure[0]) : 0;
+$diastolic = isset($pressure[1]) ? intval($pressure[1]) : 0;
+$weight = isset($_POST['weight']) ? floatval($_POST['weight']) : 0;
+$height = isset($_POST['height']) ? floatval($_POST['height']) : 0;
 $Symptoms = $_POST['symptoms'] ?? [];
 
-$Pinfo = [  $PLname,
-            $PFname,
-            $Bdate,
-            $Gender,
-            $tel
-];
-$Cinfo = [  $Cdate,
-            $Creason,
-            $temp,
-            $systolic,
-            $diastolic,
-            $weight,
-            $height,
-            $Symptoms
-];
+// Calculate age
+$age = calculAge($Bdate);
 
-$ALLinfo =  [
-    $Pinfo,
-    $Cinfo
-];
+// Calculate BMI safely
+$BMI = calculIMC($weight, $height / 100); // height in meters
 
+// Prepare data arrays
+$Pinfo = [$PLname, $PFname, $Bdate, $Gender, $tel, $age];
+$Cinfo = [$Cdate, $Creason, $temp, $systolic, $diastolic, $weight, $height, $BMI, $Symptoms];
+
+// Validate inputs
+$errors = validateConsultation(
+    $PLname,
+    $PFname,
+    $Bdate,
+    $tel,
+    $Cdate,
+    $Creason,
+    $temp,
+    $systolic,
+    $diastolic,
+    $weight,
+    $height
+);
+
+
+if (!empty($errors)) {
+    $_SESSION['errors'] = $errors;
+    echo '<script>history.back();</script>';
+    exit;
+}
+
+
+$ALLinfo = [$Pinfo, $Cinfo];
 ADDinfo($ALLinfo);
+
+
 header("Location: index.php");
 exit;
-
-
-
-
 ?>
